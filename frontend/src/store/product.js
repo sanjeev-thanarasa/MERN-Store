@@ -9,7 +9,7 @@ export const userProductStore = create((set) => ({
     }
     const res = await fetch("/api/products", {
       method: "POST",
-      headers: "Content-Type:application/json",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newProduct),
     });
 
