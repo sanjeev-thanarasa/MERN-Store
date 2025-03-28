@@ -1,3 +1,4 @@
+// Import necessary modules and components from Chakra UI and React
 import {
   Box,
   Heading,
@@ -20,22 +21,44 @@ import {
   Button,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { userProductStore } from "../store/product";
-import { useDisclosure } from "@chakra-ui/react";
+import { EditIcon, DeleteIcon } from "@chakra-ui/icons"; // Icons for edit and delete actions
+import { userProductStore } from "../store/product"; // Zustand store for managing product state
+import { useDisclosure } from "@chakra-ui/react"; // For managing modal visibility
 
+// ProductCard component to display individual product details
 const ProductCard = ({ product }) => {
-  const [editableProduct, setEditableProduct] = useState(product); // Renamed for clarity
+  // State to manage editable product details
+  const [editableProduct, setEditableProduct] = useState(product);
+
+  // Chakra UI hook for modal visibility
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Chakra UI hook for determining color mode (light or dark)
   const bg = useColorModeValue("white", "gray.800");
-  const { deleteProduct, updateProduct } = userProductStore(); // Renamed `updatedProduct` to `updateProduct` for consistency
+
+  // Zustand store functions for deleting and updating products
+  const { deleteProduct, updateProduct } = userProductStore();
+
+  // Chakra UI hook for displaying toast notifications
   const toast = useToast();
 
-  // Handle product deletion
+  // Function to format price in LKR currency with two decimal places
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "LKR",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+      .format(price)
+      .replace("LKR", "LKR "); // Ensure space after "LKR"
+  };
+
+  // Function to handle product deletion
   const handleDeleteProduct = async (pid) => {
-    const { success, message } = await deleteProduct(pid);
+    const { success, message } = await deleteProduct(pid); // Call deleteProduct from Zustand store
     toast({
-      title: success ? "Success" : "Error",
+      title: success ? "Success" : "Error", // Show success or error message
       description: message,
       status: success ? "success" : "error",
       duration: 3000,
@@ -43,20 +66,20 @@ const ProductCard = ({ product }) => {
     });
   };
 
-  // Handle product update
+  // Function to handle product update
   const handleUpdateProduct = async () => {
     const { success, message } = await updateProduct(
       product._id,
       editableProduct
-    );
+    ); // Call updateProduct from Zustand store
     toast({
-      title: success ? "Success" : "Error",
+      title: success ? "Success" : "Error", // Show success or error message
       description: message,
       status: success ? "success" : "error",
       duration: 3000,
       isClosable: true,
     });
-    if (success) onClose();
+    if (success) onClose(); // Close modal on successful update
   };
 
   return (
@@ -64,17 +87,40 @@ const ProductCard = ({ product }) => {
       shadow="md"
       rounded="md"
       overflow="hidden"
+      position="relative" // Enable absolute positioning for child elements
       transition="all 0.2s"
-      _hover={{ transform: "translateY(-5px)", shadow: "2xl" }}
+      _hover={{ transform: "translateY(-5px)", shadow: "2xl" }} // Add hover effect
       bg={bg}
     >
+      {/* Action Buttons (Edit and Delete) */}
+      <HStack
+        spacing={2}
+        position="absolute" // Position buttons absolutely
+        bottom={2} // Align to the bottom
+        right={2} // Align to the right
+        zIndex={1} // Ensure buttons are above other elements
+      >
+        <IconButton
+          icon={<EditIcon />} // Edit icon
+          colorScheme="blue"
+          aria-label="Edit Product"
+          onClick={onOpen} // Open modal for editing
+        />
+        <IconButton
+          icon={<DeleteIcon />} // Delete icon
+          onClick={() => handleDeleteProduct(product._id)} // Call delete handler
+          colorScheme="red"
+          aria-label="Delete Product"
+        />
+      </HStack>
+
       {/* Product Image */}
       <Image
-        src={product.image}
-        alt={product.name}
+        src={product.image} // Product image URL
+        alt={product.name} // Alt text for accessibility
         height="12rem"
         width="100%"
-        objectFit="cover"
+        objectFit="cover" // Ensure image covers the container
       />
 
       {/* Product Details */}
@@ -88,7 +134,7 @@ const ProductCard = ({ product }) => {
           fontWeight="bold"
           textTransform="capitalize"
         >
-          {product.name}
+          {product.name} {/* Display product name */}
         </Heading>
 
         {/* Product Price */}
@@ -99,7 +145,7 @@ const ProductCard = ({ product }) => {
           mb={4}
           textTransform="uppercase"
         >
-          LKR {product.price}
+          {formatPrice(product.price)} {/* Display formatted price */}
         </Text>
 
         {/* Product Badge */}
@@ -111,24 +157,8 @@ const ProductCard = ({ product }) => {
           rounded="full"
           mb={4}
         >
-          New Arrival
+          New Arrival {/* Display badge */}
         </Badge>
-
-        {/* Action Buttons */}
-        <HStack spacing={4}>
-          <IconButton
-            icon={<EditIcon />}
-            colorScheme="blue"
-            aria-label="Edit Product"
-            onClick={onOpen}
-          />
-          <IconButton
-            icon={<DeleteIcon />}
-            onClick={() => handleDeleteProduct(product._id)}
-            colorScheme="red"
-            aria-label="Delete Product"
-          />
-        </HStack>
       </Box>
 
       {/* Update Product Modal */}
@@ -139,6 +169,7 @@ const ProductCard = ({ product }) => {
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={4}>
+              {/* Input for product name */}
               <Input
                 placeholder="Product Name"
                 name="name"
@@ -150,6 +181,7 @@ const ProductCard = ({ product }) => {
                   })
                 }
               />
+              {/* Input for product price */}
               <Input
                 placeholder="Product Price"
                 name="price"
@@ -161,6 +193,7 @@ const ProductCard = ({ product }) => {
                   })
                 }
               />
+              {/* Input for product image URL */}
               <Input
                 placeholder="Product Image URL"
                 name="image"
@@ -176,9 +209,11 @@ const ProductCard = ({ product }) => {
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={handleUpdateProduct}>
-              Update
+              Update {/* Button to update product */}
             </Button>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose}>
+              Cancel {/* Button to cancel update */}
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
