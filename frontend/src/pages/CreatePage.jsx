@@ -22,29 +22,40 @@ const CreatePage = () => {
 
   const { createProduct } = userProductStore();
   const handleAddProduct = async () => {
-    // Add logic to add the product to the database
-    const { success, message } = await createProduct(newProduct);
-    console.log("Success:", success);
-    console.log("Message:", message);
+    try {
+      const { success, message } = await createProduct(newProduct);
+      console.log("Success:", success);
+      console.log("Message:", message);
 
-    if (!success) {
+      if (!success) {
+        toast({
+          title: "Product creation failed",
+          description: message || "An error occurred.",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: "Product created successfully",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
       toast({
-        title: "Product creation failed",
+        title: "Network error",
+        description: "Unable to connect to the server.",
         status: "error",
         duration: 9000,
         isClosable: true,
       });
-    } else {
-      toast({
-        title: "Product created successfully",
-        status: "success",
-        duration: 9000,
-        isClosable: true,
-      });
     }
-
     setNewProduct({ name: "", price: "", image: "" });
   };
+
   return (
     <Container>
       <VStack spacing={4}>
