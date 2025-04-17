@@ -166,5 +166,5 @@ This project is licensed under the **MIT License**.
 ## 💡 Next Steps
 
 1. Add more features like user authentication or product categories.
-2. Deploy the app to platforms like **Vercel** (frontend) and **Render** (backend).
+2. Deploy the app to platforms like **Vercel** (frontend) and **Render** (backend) (**https://mern-store-g4rc.onrender.com**).
 3. Share your project with the world!
